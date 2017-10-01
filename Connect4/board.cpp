@@ -26,6 +26,11 @@ void Board::update_board(string current_grid) {
 	return;
 }
 
+bool Board::operator < (const Board& other) const
+{
+    return (best_length < other.best_length);
+}
+
 ostream &operator <<(ostream & os, Board const & board) { 
 	for(int i = 0; i < board.rows; i++) {
 		for(int j = 0; j < board.columns; j++) {

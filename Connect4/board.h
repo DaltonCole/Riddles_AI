@@ -21,12 +21,14 @@ class Board {
 		Board(int r, int c);
 		void update_board(string current_grid);
 		friend ostream &operator <<(ostream & os, Board const & board);
+		bool operator < (const Board& other) const;
 
 		vector<vector<char> > grid;
 		int rows;
 		int columns;
 		int depth;
 		int last_added_column;
+		int best_length;
 };
 
 #endif

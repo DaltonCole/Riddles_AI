@@ -25,18 +25,22 @@ int Ai::find_best_column(Board & board) {
 	//time_t result = time(nullptr);
 
 	char my_player;
+	char other_player;
 	if(your_botid == 0) {
 		my_player = '0';
+		other_player = '1';
 	} else {
 		my_player = '1';
+		other_player = '0';
 	}
 
+	/*
 	vector<Board> boards = valid_moves(board, my_player);
 
 	int best_index;
 	int max_length = -1;
 	int current_length = -1;
-
+	
 	for(int i = 0; i < boards.size(); i++) {
 		if(boards[i].last_added_column == -1) {
 			continue;
@@ -47,10 +51,128 @@ int Ai::find_best_column(Board & board) {
 			best_index = boards[i].last_added_column;
 		}
 	}
+	
 
 	current_board = boards[best_index];
 
 	return current_board.last_added_column;
+	*/
+
+	current_board = minimax(board, my_player, other_player);
+
+	return current_board.last_added_column;
+}
+
+Board Ai::minimax(Board & board, char my_player, char other_player) {
+	int max_depth = 4;
+	int longest;
+	char player;
+	board.depth = 0;
+
+	stack<Board> s;
+	stack<Board> past;
+	vector<Board> valid_boards;
+	Board top;
+
+	s.push(board);
+
+	while(!s.empty()) {
+		top = s.top();
+		s.pop();
+
+		// Propagate through tree
+		if(top.depth < max_depth) {
+			if(top.depth % 2 == 0) {
+				player = my_player;
+			} else {
+				player = other_player;
+			}
+			valid_boards = valid_moves(top, player);
+
+			for(auto i : valid_boards) {
+				if(i.depth % 2 == 1) {
+					i.best_length = longest_streak(i, player);
+				} else {
+					i.best_length = -longest_streak(i, player);
+				}
+				//cout << i.depth << " " << i.best_length << endl;
+				//cout << i << endl;
+				s.push(i);
+			}
+		}
+
+		if(s.empty()) {
+			break;
+		}
+
+		// Min-max
+		past.push(top);
+		while(s.top().depth < past.top().depth) {
+			top = past.top();
+			valid_boards.clear();
+			// Get all boards of the same level
+			while(past.top().depth == top.depth) {
+				valid_boards.push_back(past.top());
+				past.pop();
+			}
+
+			// Sort boards
+			sort(valid_boards.begin(), valid_boards.end());
+
+			for(auto i : valid_boards) {
+				cout << i.depth << " " << i.best_length << endl;
+				cout << i << endl; 
+			}
+			cout << "------" << endl;
+
+			// Take max of odd layers
+			if(valid_boards[0].depth % 2 == 1) {
+				past.top().best_length = valid_boards[valid_boards.size() - 1].best_length;
+				cout << past.top().depth << " " << past.top().best_length << endl;
+				cout << past.top() << endl;
+			} else { // Take min of even layers
+				past.top().best_length = valid_boards[0].best_length;
+				cout << past.top().depth << " " << past.top().best_length << endl;
+				cout << past.top() << endl;
+			}
+			cout << "-------" << endl;
+		}
+	}
+
+	// For remainder of tree
+	while(past.size() > 1) {
+		top = past.top();
+		valid_boards.clear();
+		// Get all boards of the same level
+		while(past.top().depth == top.depth) {
+			valid_boards.push_back(past.top());
+			past.pop();
+		}
+
+		// Sort boards
+		sort(valid_boards.begin(), valid_boards.end());
+
+		cout << valid_boards[0].depth << endl;
+		cout << valid_boards[0].best_length << endl;
+		cout << valid_boards[0].last_added_column << endl << endl;
+
+		// Take max of odd layers
+		if(valid_boards[0].depth % 2 == 1) {
+			past.top().best_length = valid_boards[valid_boards.size() - 1].best_length;
+		} else { // Take min of even layers
+			past.top().best_length = valid_boards[0].best_length;
+		}
+
+		if(past.size() == 1) {
+			if(valid_boards[0].depth % 2 == 1) {
+				past.top().last_added_column = valid_boards[valid_boards.size() - 1].last_added_column;
+			} else { // Take min of even layers
+				past.top().last_added_column = valid_boards[0].last_added_column;
+			}
+		}
+	}
+
+	return past.top();
 }
 
 vector<Board> Ai::valid_moves(Board & board, char player) {
@@ -67,9 +189,6 @@ vector<Board> Ai::valid_moves(Board & board, char player) {
 			}
 		}
 		if(row == -1) {
-			temp = board;
-			temp.last_added_column = -1;
-			boards.push_back(temp);
 			continue;
 		} else{
 			temp = board;

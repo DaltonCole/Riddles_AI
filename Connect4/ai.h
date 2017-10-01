@@ -4,7 +4,9 @@
 #include "board.h"
 #include <iostream>
 #include <vector>
+#include <stack>
 #include <ctime>
+#include <algorithm>
 
 using namespace std;
 
@@ -19,6 +21,8 @@ class Ai {
 		vector<Board> valid_moves(Board & board, char player);
 		int longest_streak(Board & board, char player);
 		bool go_direction(Board & board, int r, int c, char player);
+		Board minimax(Board & board, char my_player, char other_player);
+
 
 		int timebank;
 		int time_per_move;
