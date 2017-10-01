@@ -65,7 +65,6 @@ int Ai::find_best_column(Board & board) {
 
 Board Ai::minimax(Board & board, char my_player, char other_player) {
 	int max_depth = 4;
-	int longest;
 	char player;
 	board.depth = 0;
 
@@ -95,8 +94,6 @@ Board Ai::minimax(Board & board, char my_player, char other_player) {
 				} else {
 					i.best_length = -longest_streak(i, player);
 				}
-				//cout << i.depth << " " << i.best_length << endl;
-				//cout << i << endl;
 				s.push(i);
 			}
 		}
@@ -119,23 +116,12 @@ Board Ai::minimax(Board & board, char my_player, char other_player) {
 			// Sort boards
 			sort(valid_boards.begin(), valid_boards.end());
 
-			for(auto i : valid_boards) {
-				cout << i.depth << " " << i.best_length << endl;
-				cout << i << endl; 
-			}
-			cout << "------" << endl;
-
 			// Take max of odd layers
 			if(valid_boards[0].depth % 2 == 1) {
 				past.top().best_length = valid_boards[valid_boards.size() - 1].best_length;
-				cout << past.top().depth << " " << past.top().best_length << endl;
-				cout << past.top() << endl;
 			} else { // Take min of even layers
 				past.top().best_length = valid_boards[0].best_length;
-				cout << past.top().depth << " " << past.top().best_length << endl;
-				cout << past.top() << endl;
 			}
-			cout << "-------" << endl;
 		}
 	}
 
@@ -151,10 +137,6 @@ Board Ai::minimax(Board & board, char my_player, char other_player) {
 
 		// Sort boards
 		sort(valid_boards.begin(), valid_boards.end());
-
-		cout << valid_boards[0].depth << endl;
-		cout << valid_boards[0].best_length << endl;
-		cout << valid_boards[0].last_added_column << endl << endl;
 
 		// Take max of odd layers
 		if(valid_boards[0].depth % 2 == 1) {
